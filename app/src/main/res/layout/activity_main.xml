@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bckground"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/lastSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="Ultima locatie s-a trimisa : (HH:MM:SS)"
+        android:textColor="#FFF" />
+
+    <TextView
+        android:id="@+id/t_status"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="STATUS"
+        android:textAlignment="center"
+        android:textSize="36sp"
+
+        />
+
+    <Button
+        android:id="@+id/b_liber"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:text="SUNT LIBER"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/b_ocupat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:text="SUNT OCUPAT"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/b_dezactivare"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:text="DEZACTIVARE"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/b_locatie"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:text="LOCATIE"
+        android:textColor="@color/white"
+
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="bottom|end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/b_force"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#CC3300"
+            android:drawableLeft="@drawable/ic_warning"
+            android:padding="10dp"
+            android:text="Force send Location" />
+
+        <Button
+            android:id="@+id/b_setari"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="SETARI" />
+
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,159 @@
+{
+  "project_info": {
+    "project_number": "814762393251",
+    "firebase_url": "https://greentaxi-d0de2.firebaseio.com",
+    "project_id": "greentaxi-d0de2",
+    "storage_bucket": "greentaxi-d0de2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:308036a4f2c2c626260916",
+        "android_client_info": {
+          "package_name": "com.adrian.greentaxi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-od1dd0on7p0g3546rqkj318md1d8c2fo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrian.greentaxi",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:0bbb04dbb74d5a81260916",
+        "android_client_info": {
+          "package_name": "com.adrian.greentaxisofer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-t6rt266nh6f0747v417k1s0aog9t7b3m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrian.greentaxisofer",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:9db0b06025cbb3f8260916",
+        "android_client_info": {
+          "package_name": "com.adrian.sofer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-tg2ffjv819gomt1ksfbrl8nlupv5l2g6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrian.sofer",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:b2972fadd6546f68260916",
+        "android_client_info": {
+          "package_name": "com.adrian.sofergt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-lr9612al371sedqeu9p97tg008pvjsfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrian.sofergt",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
