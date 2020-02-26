@@ -1,7 +1,6 @@
 package com.adrian.sofergt;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -19,6 +18,8 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -26,8 +27,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,22 +39,57 @@ import java.util.Date;
 
 public class SendLocation extends Service {
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
+    public static String myPhoneNumber;
     public static LatLng LOCATION;
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference myRef;
     LocationManager locationManager;
     LocationListener locationListener;
-    String nrtel;
+
     Date currentTime;
     NotificationCompat.Builder b;
-    Notification notification;
     BroadcastReceiver mReceiver;
     SimpleDateFormat sdf;
+    static int ms = 1000, metri = 5;
+    DatabaseReference FirebaseRef;
+    PowerManager powerManager;
+    WakeLock wakeLock;
+
 
     @SuppressLint("SimpleDateFormat")
     @Override
     public void onCreate() {
         super.onCreate();
+
+        powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.adrian.sofergt::SendLocationWakeLock");
+
+
+        FirebaseRef = db.getReference();
+        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                try {
+                    ms = snapshot.child("ms").getValue(Integer.class);
+                    metri = snapshot.child("metri").getValue(Integer.class);
+                } catch (Exception e) {
+                    try {
+                        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(0);
+                        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(5);
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+
+
+
+
         mReceiver = new InternetReciver(getApplicationContext());
         try {
             registerReceiver(mReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -65,10 +104,14 @@ public class SendLocation extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         String input = intent.getStringExtra("inputExtra");
-        nrtel = intent.getStringExtra("nrtel");
+
+
         createNotificationChannel();
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
@@ -77,33 +120,37 @@ public class SendLocation extends Service {
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent);
-        notification = b.build();
 
-        startForeground(1, notification);
+        startForeground(1, b.build());
 
+        wakeLock.acquire();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         locationListener = new LocationListener() {
+
 
             @Override
             public void onLocationChanged(Location location) {
                 if (location.getLatitude() > 48 || location.getLatitude() < 43 ||
                         location.getLongitude() > 26 || location.getLongitude() < 22) {
                     myRef = db.getReference("erorii");
-                    myRef.child(nrtel).child("x").setValue(location.getLatitude());
-                    myRef.child(nrtel).child("y").setValue(location.getLongitude());
+                    myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
+                    myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
                 }
                 myRef = db.getReference("soferi");
 
-                myRef.child(nrtel).child("x").setValue(location.getLatitude());
-                myRef.child(nrtel).child("y").setValue(location.getLongitude());
+                myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
+                myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
                 LOCATION = new LatLng(location.getLatitude(), location.getLongitude());
                 currentTime = Calendar.getInstance().getTime();
 
-                myRef.child(nrtel).child("lastSignal").setValue(sdf.format(currentTime));
+                myRef.child(myPhoneNumber).child("lastSignal").setValue(sdf.format(currentTime));
+                Intent intent1 = new Intent();
+                intent1.setAction("com.example.andy.myapplication");
+                intent1.putExtra("DATAPASSED", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
+                sendBroadcast(intent1);
 
-                MainActivity.change("Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
 
                 final ConnectivityManager connMgr = (ConnectivityManager) getApplicationContext()
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -148,15 +195,20 @@ public class SendLocation extends Service {
         };
 
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, metri, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ms, metri, locationListener);
+
+
 
         //stopSelf();
         return START_STICKY;
     }
 
+
     @Override
     public void onDestroy() {
+        wakeLock.release();
+        locationManager.removeUpdates(locationListener);
         unregisterReceiver(mReceiver);
         super.onDestroy();
     }

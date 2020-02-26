@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
@@ -17,10 +18,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,9 +37,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
-    Button show_textSUS, save_textSUS, show_textJOS, save_textJOS, save_image;
+    Button show_textSUS, save_textSUS, show_textJOS, save_textJOS, save_image, metriSave, msSave;
 
-    EditText edit_sus, edit_jos;
+    EditText edit_sus, edit_jos, msText, metriText;
 
     ImageView imageView;
 
@@ -45,8 +48,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
-    DatabaseReference firebaseRef;
+    DatabaseReference firebaseRef, reference;
     StorageReference storageReference;
+    int metri, ms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,99 @@ public class SettingsActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.edit_image);
         save_image = findViewById(R.id.save_image);
+
+        msText = findViewById(R.id.edit_ms);
+        msSave = findViewById(R.id.button_ms);
+
+
+        metriText = findViewById(R.id.edit_metri);
+        metriSave = findViewById(R.id.button_metri);
+
+
+        reference = db.getReference();
+        reference.child("soferi").child(MainActivity.getnrtel()).child("settings").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                try {
+                    msText.setText(String.valueOf(snapshot.child("ms").getValue(Integer.class) / 1000));
+                    metriText.setText(String.valueOf(snapshot.child("metri").getValue(Integer.class)));
+
+                } catch (Exception e) {
+                    Log.e("onDataChange", e.toString());
+                    msText.setText("1");
+                    metriText.setText("1");
+                    FirebaseCrashlytics.getInstance().log(e.toString());
+                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("ms").setValue(1);
+                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("metri").setValue(1);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+        msSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    ms = Integer.parseInt(msText.getText().toString()) * 1000;
+                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("ms").setValue(ms);
+
+                    SendLocation.ms = ms;
+
+
+                    Toast.makeText(SettingsActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.e("TAG-msSave", e.toString());
+                    Toast.makeText(SettingsActivity.this, "Introduceti o valoare valida!", Toast.LENGTH_SHORT).show();
+                }
+                try {
+                    Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
+                    stopService(serviceIntent);
+                    serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
+                    serviceIntent.putExtra("nrtel", MainActivity.getnrtel());
+                    //startService(serviceIntent);
+                    ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
+                } catch (Exception e) {
+                    Log.e("TAG-msSave", e.toString());
+                    Toast.makeText(SettingsActivity.this, "Probleme la Serviciu", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        metriSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    metri = Integer.parseInt(metriText.getText().toString());
+                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("metri").setValue(metri);
+                    SendLocation.metri = metri;
+
+
+                    Toast.makeText(SettingsActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.e("TAG-metriSave", e.toString());
+                    Toast.makeText(SettingsActivity.this, "Introduceti o valoare valida!", Toast.LENGTH_SHORT).show();
+                }
+                try {
+                    Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
+                    stopService(serviceIntent);
+                    serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
+                    serviceIntent.putExtra("nrtel", MainActivity.getnrtel());
+                    //startService(serviceIntent);
+                    ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
+                } catch (Exception e) {
+                    Log.e("TAG-metriSave", e.toString());
+                    Toast.makeText(SettingsActivity.this, "Probleme la Serviciu", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
 
         show_textSUS.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,15 +184,16 @@ public class SettingsActivity extends AppCompatActivity {
         save_textSUS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (edit_sus.getText().toString().length() > 5) {
-                    firebaseRef = db.getReference("info");
-                    firebaseRef.child("maintext").setValue(edit_sus.getText().toString());
-                    edit_sus.setText("");
-                    Toast.makeText(SettingsActivity.this, "Text salvat!", Toast.LENGTH_SHORT).show();
-                } else {
+                if (MainActivity.getnrtel().equals("0747089167"))
+                    if (edit_sus.getText().toString().length() > 5) {
+                        firebaseRef = db.getReference("info");
+                        firebaseRef.child("maintext").setValue(edit_sus.getText().toString());
+                        edit_sus.setText("");
+                        Toast.makeText(SettingsActivity.this, "Text salvat!", Toast.LENGTH_SHORT).show();
+                    } else {
 
-                    Toast.makeText(SettingsActivity.this, "Textul trebuie sa contina ceva!", Toast.LENGTH_SHORT).show();
-                }
+                        Toast.makeText(SettingsActivity.this, "Textul trebuie sa contina ceva!", Toast.LENGTH_SHORT).show();
+                    }
             }
         });
 
@@ -119,15 +217,16 @@ public class SettingsActivity extends AppCompatActivity {
         save_textJOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (edit_jos.getText().toString().length() > 5) {
-                    firebaseRef = db.getReference("info");
-                    firebaseRef.child("secondtext").setValue(edit_jos.getText().toString());
-                    edit_jos.setText("");
-                    Toast.makeText(SettingsActivity.this, "Text salvat!", Toast.LENGTH_SHORT).show();
-                } else {
+                if (MainActivity.getnrtel().equals("0747089167"))
+                    if (edit_jos.getText().toString().length() > 5) {
+                        firebaseRef = db.getReference("info");
+                        firebaseRef.child("secondtext").setValue(edit_jos.getText().toString());
+                        edit_jos.setText("");
+                        Toast.makeText(SettingsActivity.this, "Text salvat!", Toast.LENGTH_SHORT).show();
+                    } else {
 
-                    Toast.makeText(SettingsActivity.this, "Textul trebuie sa contina ceva!", Toast.LENGTH_SHORT).show();
-                }
+                        Toast.makeText(SettingsActivity.this, "Textul trebuie sa contina ceva!", Toast.LENGTH_SHORT).show();
+                    }
 
             }
         });
@@ -189,33 +288,38 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void FileUploader() {
-        final StorageReference seReference = storageReference.child(MainActivity.getnrtel() + "." + getExtension());
+        try {
+            final StorageReference seReference = storageReference.child(MainActivity.getnrtel() + "." + getExtension());
 
 
-        UploadTask uploadTask = seReference.putFile(imguri);
+            UploadTask uploadTask = seReference.putFile(imguri);
 
-        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-            @Override
-            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                if (!task.isSuccessful()) {
-                    throw Objects.requireNonNull(task.getException());
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw Objects.requireNonNull(task.getException());
+                    }
+
+                    // Continue with the task to get the download URL
+                    return seReference.getDownloadUrl();
                 }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        String downloadURL = Objects.requireNonNull(downloadUri).toString();
+                        FirebaseDatabase.getInstance().getReference("soferi").child(MainActivity.getnrtel()).child("url").setValue(downloadURL);
+                        Toast.makeText(SettingsActivity.this, "Imagine salvata cu succes", Toast.LENGTH_SHORT).show();
+                    }
 
-                // Continue with the task to get the download URL
-                return seReference.getDownloadUrl();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-            @Override
-            public void onComplete(@NonNull Task<Uri> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUri = task.getResult();
-                    String downloadURL = Objects.requireNonNull(downloadUri).toString();
-                    FirebaseDatabase.getInstance().getReference("soferi").child(MainActivity.getnrtel()).child("url").setValue(downloadURL);
-                    Toast.makeText(SettingsActivity.this, "Imagine salvata cu succes", Toast.LENGTH_SHORT).show();
                 }
-
-            }
-        });
+            });
+        } catch (Exception er) {
+            Toast.makeText(this, er.toString(), Toast.LENGTH_LONG).show();
+            finish();
+        }
 
     }
 

@@ -3,6 +3,7 @@ package com.adrian.sofergt;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,16 +14,18 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -33,39 +36,47 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static Context context;
     public static final String SHARE_PREFS = "sharedPrefs";
     public static final String TEXT = "text";
     static int STATUS = 0;
     static String TELEFON;
-    @SuppressLint("StaticFieldLeak")
     static TextView textvvv;
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference myRef;
     String textData;
+    BroadcastReceiver broadcastReceiver;
     boolean inregistrat = false;
     Button liber, ocupat, setari, locatie, dezactivare, force;
     TextView status;
     String[] dates;
     boolean started = false;
 
-    public static void change(String text) {
-        synchronized (textvvv) {
-            textvvv.setText(text);
-        }
-    }
-
     public static String getnrtel() {
-        return TELEFON;
+        try {
+            if (TELEFON.length() < 5) {
+                FileHelper h = new FileHelper();
+                String text = h.readFromFile(context);
+                String[] separable = h.readFromFile(context).split("\n");
+
+                String thisNrTel = separable[2].replaceAll("\\s+", "");
+                return thisNrTel;
+
+            } else
+                return TELEFON;
+        } catch (Exception e) {
+            return e.toString();
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = this;
         liber = findViewById(R.id.b_liber);
         ocupat = findViewById(R.id.b_ocupat);
         setari = findViewById(R.id.b_setari);
@@ -78,25 +89,40 @@ public class MainActivity extends AppCompatActivity {
         status.setBackgroundColor(Color.GRAY);
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
 
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.FOREGROUND_SERVICE,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                }, 101);
+            }
+        }
 
-            requestPermissions(new String[]{
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_NETWORK_STATE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED) {
 
-            }, 10);
+                requestPermissions(new String[]{
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.ACCESS_NETWORK_STATE
 
-            return;
-        } else {
-            configureButton();
+                }, 10);
 
+
+                return;
+            } else {
+                configureButton();
+
+            }
         }
         force.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,27 +131,31 @@ public class MainActivity extends AppCompatActivity {
                 startService();
                 StringBuilder sb = new StringBuilder();
                 sb.append("\n\n De obicei se transmite in background, dar daca nu iti merge , tre sa ti ecranu aprins mereu!");
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    sb.append("\n\n Locatia era dezactivata!");
-                    requestPermissions(new String[]{
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
 
-                    }, 10);
-                }
-                if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    sb.append("\n\n Locatia nu era la acuratete maxima!");
-                    requestPermissions(new String[]{
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-                    }, 10);
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        sb.append("\n\n Locatia era dezactivata!");
+                        requestPermissions(new String[]{
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+
+                        }, 10);
+                    }
+                    if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        sb.append("\n\n Locatia nu era la acuratete maxima!");
+                        requestPermissions(new String[]{
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+
+                        }, 10);
+                    }
                 }
                 final ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                final android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                final android.net.NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                final NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                final NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
                 if (wifi.isConnected()) {
-                    sb.append("\n\n Dezactiveaza wifi,sar putea sa incerce sa transmita prin wifi chiar daca nu esti conectat!");
+                    sb.append("\n\n Dezactiveaza wifi,s-ar putea sa incerce sa transmita prin wifi chiar daca nu esti conectat!");
 
                 }
                 if (!mobile.isConnected()) {
@@ -173,13 +203,22 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.show();
                 alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GREEN);
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GREEN);
+
+
             }
-
-
         });
 
 
         textvvv = findViewById(R.id.lastSend);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String s1 = intent.getStringExtra("DATAPASSED");
+                textvvv.setText(s1);
+            }
+        };
+
 
         FileHelper h = new FileHelper();
 
@@ -263,15 +302,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                status.setBackgroundColor(Color.GREEN);
-                status.setText("LIBER");
-
-                myRef = db.getReference("soferi");
-                myRef.child(dates[2]).child("status").setValue(1);
-                startService();
-                STATUS = 1;
-                saveData();
-
+                Toast.makeText(MainActivity.this, "LIBER", Toast.LENGTH_SHORT).show();
+                try {
+                    status.setBackgroundColor(Color.GREEN);
+                    status.setText("LIBER");
+                    myRef = db.getReference("soferi");
+                    myRef.child(dates[2]).child("status").setValue(1);
+                    stopService();
+                    startService();
+                    STATUS = 1;
+                    saveData();
+                } catch (Exception e) {
+                    Log.e("liber.", e.toString());
+                }
             }
         });
 
@@ -283,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
                 myRef = db.getReference("soferi");
                 myRef.child(dates[2]).child("status").setValue(2);
+                stopService();
                 startService();
                 STATUS = 2;
                 saveData();
@@ -299,8 +343,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.example.andy.myapplication");
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -309,7 +372,13 @@ public class MainActivity extends AppCompatActivity {
                 configureButton();
 
             }
+        } else if (requestCode == 101) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Permission Garanted!", Toast.LENGTH_SHORT).show();
+
+            }
         }
+
     }
 
     private void configureButton() {
@@ -419,20 +488,22 @@ public class MainActivity extends AppCompatActivity {
         if (!started) {
 
             started = true;
-            Intent serviceIntent = new Intent(this, SendLocation.class);
+            Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
             serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
             serviceIntent.putExtra("nrtel", dates[2]);
+            SendLocation.myPhoneNumber = dates[2];
             //startService(serviceIntent);
-            ContextCompat.startForegroundService(this, serviceIntent);
+            ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
 
         }
     }
 
     public void stopService() {
-
-        Intent serviceIntent = new Intent(this, SendLocation.class);
-        stopService(serviceIntent);
-        started = false;
+        if (started) {
+            Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
+            stopService(serviceIntent);
+            started = false;
+        }
     }
 
     @SuppressLint("MissingPermission")

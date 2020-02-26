@@ -27,6 +27,10 @@ public class InternetReciver extends BroadcastReceiver {
 
     }
 
+    public InternetReciver() {
+
+    }
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
 
