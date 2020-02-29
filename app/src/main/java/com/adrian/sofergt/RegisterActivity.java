@@ -28,6 +28,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
     FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -113,7 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Bitmap resized = Bitmap.createScaledBitmap(a1, 300, 300, true);
+            Bitmap resized = Bitmap.createScaledBitmap(Objects.requireNonNull(a1), 300, 300, true);
 
             imageView.setImageBitmap(resized);
             imgUploaded = true;
@@ -144,7 +145,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()) {
-                    throw task.getException();
+                    throw Objects.requireNonNull(task.getException());
                 }
 
                 // Continue with the task to get the download URL
@@ -155,13 +156,11 @@ public class RegisterActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    String downloadURL = downloadUri.toString();
+                    String downloadURL = Objects.requireNonNull(downloadUri).toString();
                     usersRef.child(nr_tel_string).child("url").setValue(downloadURL);
                     finish();
-                } else {
-                    // Handle failures
-                    // ...
                 }
+
             }
         });
 

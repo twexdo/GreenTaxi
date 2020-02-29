@@ -21,24 +21,24 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class SendLocation extends Service {
-    public static final String CHANNEL_ID = "ForegroundServiceChannel";
+    public static final String CHANNEL_ID = "GreenTaxiForegroundService";
     public static String myPhoneNumber;
     public static LatLng LOCATION;
     FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -50,46 +50,31 @@ public class SendLocation extends Service {
     NotificationCompat.Builder b;
     BroadcastReceiver mReceiver;
     SimpleDateFormat sdf;
-    static int ms = 1000, metri = 5;
+    static Integer ms = 0, metri = 0;
     DatabaseReference FirebaseRef;
     PowerManager powerManager;
     WakeLock wakeLock;
 
+    Context context;
 
     @SuppressLint("SimpleDateFormat")
     @Override
     public void onCreate() {
         super.onCreate();
+        context = this;
+        b = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("GreenTaxi - LOCATION")
+                .setContentText("serviciu creat")
+                .setSmallIcon(R.drawable.ic_launcher_foreground);
+
+        createNotificationChannel();
+        ((SendLocation) context).startForeground(1, b.build());
+
 
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.adrian.sofergt::SendLocationWakeLock");
+        wakeLock = Objects.requireNonNull(powerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.adrian.sofergt::SendLocationWakeLock");
 
-
-        FirebaseRef = db.getReference();
-        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                try {
-                    ms = snapshot.child("ms").getValue(Integer.class);
-                    metri = snapshot.child("metri").getValue(Integer.class);
-                } catch (Exception e) {
-                    try {
-                        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(0);
-                        FirebaseRef.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(5);
-                    } catch (Exception ex) {
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-
-
-
-
+        try {
         mReceiver = new InternetReciver(getApplicationContext());
         try {
             registerReceiver(mReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -98,15 +83,25 @@ public class SendLocation extends Service {
         }
 
         sdf = new SimpleDateFormat("HH:mm:ss");
-    }
+        } catch (Exception e) {
+            stopForeground(true);
 
+        }
+    }
 
     @SuppressLint("MissingPermission")
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
 
         String input = intent.getStringExtra("inputExtra");
 
+        String nrteeel = intent.getStringExtra("nrtel");
+
+        if (nrteeel.length() > 4) myPhoneNumber = nrteeel;
+        else if (myPhoneNumber.length() < 5) {
+            input = "EROARE RESETEAZA STATUSUL";
+            Toast.makeText(context, "EROARE EROARE EROARE", Toast.LENGTH_SHORT).show();
+        }
 
         createNotificationChannel();
 
@@ -120,87 +115,91 @@ public class SendLocation extends Service {
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent);
-
         startForeground(1, b.build());
 
-        wakeLock.acquire();
+        try {
+            wakeLock.acquire(60 * 60 * 1000L /*1 hour*/);
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        locationListener = new LocationListener() {
+            locationListener = new LocationListener() {
 
 
-            @Override
-            public void onLocationChanged(Location location) {
-                if (location.getLatitude() > 48 || location.getLatitude() < 43 ||
-                        location.getLongitude() > 26 || location.getLongitude() < 22) {
-                    myRef = db.getReference("erorii");
+                @Override
+                public void onLocationChanged(Location location) {
+                    if (location.getLatitude() > 49 || location.getLatitude() < 42 ||
+                            location.getLongitude() > 27 || location.getLongitude() < 21) {
+                        myRef = db.getReference("erorii");
+                        myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
+                        myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
+                    }
+                    myRef = db.getReference("soferi");
+
                     myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
                     myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
+                    LOCATION = new LatLng(location.getLatitude(), location.getLongitude());
+                    currentTime = Calendar.getInstance().getTime();
+
+                    myRef.child(myPhoneNumber).child("lastSignal").setValue(sdf.format(currentTime));
+                    Intent intent1 = new Intent();
+                    intent1.setAction("com.adrian.sofergt");
+                    intent1.putExtra("lastTimeLocationHasBeenSent", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
+                    sendBroadcast(intent1);
+
+
+                    final ConnectivityManager connMgr = (ConnectivityManager) getApplicationContext()
+                            .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                    final NetworkInfo mobile = Objects.requireNonNull(connMgr)
+                            .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+                    final NetworkInfo wifi = connMgr
+                            .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+                    if (Objects.requireNonNull(mobile).isConnected() || Objects.requireNonNull(wifi).isConnected()) {
+                        SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("lastC", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
+                        editor.apply();
+                    }
                 }
-                myRef = db.getReference("soferi");
-
-                myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
-                myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
-                LOCATION = new LatLng(location.getLatitude(), location.getLongitude());
-                currentTime = Calendar.getInstance().getTime();
-
-                myRef.child(myPhoneNumber).child("lastSignal").setValue(sdf.format(currentTime));
-                Intent intent1 = new Intent();
-                intent1.setAction("com.example.andy.myapplication");
-                intent1.putExtra("DATAPASSED", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
-                sendBroadcast(intent1);
 
 
-                final ConnectivityManager connMgr = (ConnectivityManager) getApplicationContext()
-                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
 
-                final NetworkInfo mobile = connMgr
-                        .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-                final NetworkInfo wifi = connMgr
-                        .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-                if (mobile.isConnected() || wifi.isConnected()) {
-                    SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("lastC", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
-                    editor.apply();
                 }
-            }
 
+                @Override
+                public void onProviderEnabled(String s) {
 
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-                try {
-                    Toast.makeText(SendLocation.this, "ACTIVEAZA LOCATIA!!", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                } catch (Exception e) {
-
-                    Toast.makeText(SendLocation.this, "Activati locatia!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
                 }
-            }
-        };
+
+                @Override
+                public void onProviderDisabled(String s) {
+                    try {
+                        Toast.makeText(SendLocation.this, "ACTIVEAZA LOCATIA!!", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } catch (Exception e) {
+
+                        Toast.makeText(SendLocation.this, "Activati locatia!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
 
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, metri, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ms, metri, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, metri, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ms, metri, locationListener);
 
+        } catch (Exception e) {
+            Log.e("DEBUGFUCK", e.toString());
+            stopForeground(true);
+            stopSelf();
 
-
-        //stopSelf();
+        }
+        Toast.makeText(context, "DONE!", Toast.LENGTH_SHORT).show();
         return START_STICKY;
     }
 
@@ -210,12 +209,21 @@ public class SendLocation extends Service {
         wakeLock.release();
         locationManager.removeUpdates(locationListener);
         unregisterReceiver(mReceiver);
-        super.onDestroy();
+        if (context.getClass().isInstance(SendLocation.class)) {
+            ((SendLocation) context).stopForeground(true);
+        }
+
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
         return null;
     }
 
@@ -224,10 +232,10 @@ public class SendLocation extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(serviceChannel);
+            Objects.requireNonNull(manager).createNotificationChannel(serviceChannel);
         }
     }
 

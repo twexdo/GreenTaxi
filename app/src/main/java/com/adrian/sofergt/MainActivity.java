@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -15,10 +14,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,57 +23,68 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static Context context;
+    //Stringuri
     public static final String SHARE_PREFS = "sharedPrefs";
-    public static final String TEXT = "text";
+    //Inturi
     static int STATUS = 0;
+    public static final String TEXT = "text";
     static String TELEFON;
+    //TextView-uri
     static TextView textvvv;
-    FirebaseDatabase db = FirebaseDatabase.getInstance();
-    DatabaseReference myRef;
-    String textData;
-    BroadcastReceiver broadcastReceiver;
-    boolean inregistrat = false;
-    Button liber, ocupat, setari, locatie, dezactivare, force;
-    TextView status;
     String[] dates;
-    boolean started = false;
+    String textData, state_String;
+    int state, toastCounter = 0, threadCounter = 0;
+    int color;
+    TextView status;
+    //Firebase
+    FirebaseDatabase db = FirebaseDatabase.getInstance();
+    //BroadcastReceivere
+    BroadcastReceiver broadcastReceiver;
+    DatabaseReference myRef;
+    //Valori ooleene
+    boolean inregistrat = false;
+    boolean butonAPASAT = false;
+    //Butoane
+    Button liber, ocupat, setari, locatie, dezactivare, force;
+    //Clase proprii
+    FileHelper fileHelper;
+    //Context
+    private Context context;
 
-    public static String getnrtel() {
-        try {
-            if (TELEFON.length() < 5) {
-                FileHelper h = new FileHelper();
-                String text = h.readFromFile(context);
-                String[] separable = h.readFromFile(context).split("\n");
+//    public static String getnrtel() {
+//        try {
+//            FileHelper h = new FileHelper();
+//            String text = h.readFromFile(context);
+//            String[] separable = h.readFromFile(context).split("\n");
+//
+//            String thisNrTel = separable[2].replaceAll("\\s+", "");
+//            return thisNrTel;
+//        } catch (Exception e) {
+//            return e.toString();
+//        }
+//
+//    }
 
-                String thisNrTel = separable[2].replaceAll("\\s+", "");
-                return thisNrTel;
-
-            } else
-                return TELEFON;
-        } catch (Exception e) {
-            return e.toString();
-        }
-
-    }
-
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         context = this;
+
         liber = findViewById(R.id.b_liber);
         ocupat = findViewById(R.id.b_ocupat);
         setari = findViewById(R.id.b_setari);
@@ -85,10 +93,18 @@ public class MainActivity extends AppCompatActivity {
         dezactivare = findViewById(R.id.b_dezactivare);
         force = findViewById(R.id.b_force);
 
+        textvvv = findViewById(R.id.lastSend);
 
         status.setBackgroundColor(Color.GRAY);
+
+        //ecran mereu aprins
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+
+        fileHelper = new FileHelper();
+
+
+        //daca e api >= 29 cere permisiuni in plus
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     checkSelfPermission(Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
@@ -100,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 }, 101);
             }
         }
-
+        //api 23+  cere permisiuni normal
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -116,115 +132,44 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_NETWORK_STATE
 
                 }, 10);
-
-
                 return;
             } else {
                 configureButton();
 
             }
         }
+
+
         force.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopService();
-                startService();
-                StringBuilder sb = new StringBuilder();
-                sb.append("\n\n De obicei se transmite in background, dar daca nu iti merge , tre sa ti ecranu aprins mereu!");
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        sb.append("\n\n Locatia era dezactivata!");
-                        requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-
-                        }, 10);
-                    }
-                    if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        sb.append("\n\n Locatia nu era la acuratete maxima!");
-                        requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-
-                        }, 10);
-                    }
-                }
-                final ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                final NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                final NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-                if (wifi.isConnected()) {
-                    sb.append("\n\n Dezactiveaza wifi,s-ar putea sa incerce sa transmita prin wifi chiar daca nu esti conectat!");
-
-                }
-                if (!mobile.isConnected()) {
-                    sb.append("\n\n Activeaza datele mobile, si verifica daca ai semnal bun!");
-                }
-
-                if (!isMyServiceRunning(SendLocation.class)) {
-
-                    sb.append("\n\n Seteazate pe dezactivat apoi pe liber sau ocupat!");
-                }
-
+                //restarteaza serviciu , si  trimite ultima locatie
 
                 myRef = db.getReference("soferi");
+                double[] local_gps = getGPS();
 
-                myRef.child(dates[2]).child("x").setValue(getGPS()[0]);
-                myRef.child(dates[2]).child("y").setValue(getGPS()[1]);
+                myRef.child(dates[2]).child("x").setValue(local_gps[0]);
+                myRef.child(dates[2]).child("y").setValue(local_gps[1]);
 
-                sb.append("\n\n Apasa ORIGINAL MAP pentru a vedea locatia actuala(pct albastru) si locatia trimisa de aplicate(Marker rosu).\n\n In caz ca e distanta mare intre cele doua fa screenshot si trimite-mi!");
-
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                alertDialog.setTitle("Sfaturi:");
-                alertDialog.setMessage(sb.toString());
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "ORIGINAL MAP",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Create a Uri from an intent string. Use the result to create an Intent.
-                                Uri gmmIntentUri = Uri.parse("https://maps.google.com/?q=<" + getGPS()[0] + ">,<" + getGPS()[1] + ">");
-
-
-                                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-
-
-                                startActivity(mapIntent);
-
-                                dialog.dismiss();
-                            }
-                        });
-
-                alertDialog.show();
-                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GREEN);
-                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GREEN);
-
+                stopServiceFunction();
+                startServiceFunction();
 
             }
         });
 
 
-        textvvv = findViewById(R.id.lastSend);
-
+        //acest receiver primeste semnal de la clasa SendLocation cu ultima data HH:MM:SS cand locaatia a fost updatata
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String s1 = intent.getStringExtra("DATAPASSED");
+                String s1 = intent.getStringExtra("lastTimeLocationHasBeenSent");
                 textvvv.setText(s1);
             }
         };
 
-
-        FileHelper h = new FileHelper();
-
-        String text = h.readFromFile(this);
+        String text = fileHelper.readFromFile(this);
         dates = text.split("\n");
-
+        //verificare daca userul e logat (daca exista date in fisier )
         if (text.length() > 3) {
             dates[1] = dates[1].replaceAll("\\s+", "");
             dates[2] = dates[2].replaceAll("\\s+", "");
@@ -235,17 +180,12 @@ public class MainActivity extends AppCompatActivity {
         }
         if (!inregistrat) {
             Intent myIntent = new Intent(MainActivity.this, RegisterActivity.class);
-            //myIntent.putExtra("key", value); //Optional parameters
             MainActivity.this.startActivityForResult(myIntent, 420);
 
         }
-
-
-        textData = "00";
+        /*******Incarcare date , si setare text in functie de acele date*******/
         loadData();
-
         textvvv.setText(textData);
-
         try {
             switch (STATUS) {
                 case 0:
@@ -282,62 +222,36 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception ignored) {
         }
+        /**********************************************************************/
+
 
         dezactivare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                status.setBackgroundColor(Color.GRAY);
-                status.setText("DEZACTIVAT");
-
-                myRef = db.getReference("soferi");
-                myRef.child(dates[2]).child("status").setValue(0);
-                stopService();
-                STATUS = 0;
-                saveData();
-
+                changeState(0);
             }
         });
 
         liber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Toast.makeText(MainActivity.this, "LIBER", Toast.LENGTH_SHORT).show();
-                try {
-                    status.setBackgroundColor(Color.GREEN);
-                    status.setText("LIBER");
-                    myRef = db.getReference("soferi");
-                    myRef.child(dates[2]).child("status").setValue(1);
-                    stopService();
-                    startService();
-                    STATUS = 1;
-                    saveData();
-                } catch (Exception e) {
-                    Log.e("liber.", e.toString());
-                }
+                changeState(1);
             }
         });
 
         ocupat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                status.setBackgroundColor(Color.RED);
-                status.setText("OCUPAT");
-
-                myRef = db.getReference("soferi");
-                myRef.child(dates[2]).child("status").setValue(2);
-                stopService();
-                startService();
-                STATUS = 2;
-                saveData();
-
+                changeState(2);
             }
+
         });
 
         setari.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                i.putExtra("myPhoneNumber", dates[2]);
                 startActivity(i);
 
             }
@@ -349,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.example.andy.myapplication");
+        intentFilter.addAction("com.adrian.sofergt");
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -364,6 +278,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopServiceFunction();
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -483,26 +403,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startService() {
-        saveData();
-        if (!started) {
+    public void startServiceFunction() {
+        if (!isMyServiceRunning(SendLocation.class)) {
+            try {
+                Intent serviceIntent = new Intent(this, SendLocation.class);
+                serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
+                serviceIntent.putExtra("nrtel", dates[2]);
+                SendLocation.myPhoneNumber = dates[2];
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ContextCompat.startForegroundService(this, serviceIntent);
+                } else
+                    startService(serviceIntent);
 
-            started = true;
-            Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
-            serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
-            serviceIntent.putExtra("nrtel", dates[2]);
-            SendLocation.myPhoneNumber = dates[2];
-            //startService(serviceIntent);
-            ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
+                //ContextCompat.startForegroundService(this, serviceIntent);
 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void stopService() {
-        if (started) {
-            Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
+    public void stopServiceFunction() {
+        if (isMyServiceRunning(SendLocation.class)) {
+
+            Intent serviceIntent = new Intent(this, SendLocation.class);
             stopService(serviceIntent);
-            started = false;
+
         }
     }
 
@@ -531,10 +457,132 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
+                //Toast.makeText(context, "SERVICE ON", Toast.LENGTH_SHORT).show();
                 return true;
             }
         }
+        //Toast.makeText(context, "SERVICE OFF", Toast.LENGTH_SHORT).show();
         return false;
     }
-}
 
+    public boolean isNetworkAvailable() {
+        boolean swither = false;
+        try {
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = null;
+            if (connectivityManager != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    networkInfo = connectivityManager.getActiveNetworkInfo();
+
+            }
+            swither = networkInfo.isConnected();
+
+        } catch (Exception e) {
+
+        }
+        return swither;
+    }
+
+
+    public void changeState(int _state) {
+        if (!butonAPASAT) {
+            butonAPASAT = true;
+            if (isNetworkAvailable()) {
+                MainActivity.this.state = _state;
+                state_String = "DEZACTIVAT";
+                switch (_state) {
+                    case 0:
+                        color = Color.GRAY;
+                        state_String = "DEZACTIVAT";
+                        break;
+                    case 1:
+                        color = Color.GREEN;
+                        state_String = "LIBER";
+                        break;
+                    case 2:
+                        color = Color.RED;
+                        state_String = "OCUPAT";
+                        break;
+                }
+
+
+                try {
+                    myRef = db.getReference("soferi");
+                    myRef.child(dates[2]).child("status").setValue(MainActivity.this.state).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+
+
+                            status.setBackgroundColor(color);
+                            status.setText(state_String);
+
+                            if (MainActivity.this.state > 0) startServiceFunction();
+                            else stopServiceFunction();
+
+                            STATUS = MainActivity.this.state;
+                            saveData();
+                            butonAPASAT = false;
+                            Toast.makeText(context, "Succes!", Toast.LENGTH_SHORT).show();
+
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    butonAPASAT = false;
+                                    Toast.makeText(getApplicationContext(), "Poor internet connection, please try again!", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnCanceledListener(new OnCanceledListener() {
+                                @Override
+                                public void onCanceled() {
+                                    butonAPASAT = false;
+                                    Toast.makeText(getApplicationContext(), "Poor internet connection, please try again!", Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
+                } catch (Exception e) {
+                    butonAPASAT = false;
+                    errorState(e);
+                }
+            } else {
+                if (threadCounter < 1) {
+                    Toast.makeText(getApplicationContext(), "Eroare ,incearca din nou in 2 secunde...", Toast.LENGTH_SHORT).show();
+
+                    threadCounter++;
+                    final Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000);
+                                toastCounter = 0;
+                                threadCounter = 0;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            butonAPASAT = false;
+                        }
+                    });
+                    thread.start();
+                }
+
+            }
+        } else {
+            if (toastCounter < 1) {
+                toastCounter++;
+                Toast.makeText(getApplicationContext(), "Te rog asteapta...", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+    }
+
+    public void errorState(Exception e) {
+
+        status.setBackgroundColor(Color.GRAY);
+        status.setText("ERROR");
+        STATUS = MainActivity.this.state;
+    }
+
+}

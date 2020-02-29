@@ -1,11 +1,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000"
+    android:background="#000000"
     android:scrollbars="vertical">
 
     <LinearLayout
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -20,36 +19,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Schimba imaginea de profil:"
-                android:layout_marginBottom="10dp"
                 android:textColor="#FFF"
                 android:textStyle="bold" />
 
             <ImageView
+                android:layout_gravity="center"
                 android:id="@+id/edit_image"
+                android:background="#FFC107"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFF"
-                android:minHeight="50dp"
+                android:minHeight="100dp"
                 android:src="@drawable/photo_black_24dp" />
 
             <Button
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/save_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFF"
+                android:background="@drawable/mybutton"
                 android:layout_weight="3"
-                android:textColor="#000"
                 android:hint="SAVE"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <EditText
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="#FFF"
+            android:textColorHint="#FFF"
             android:id="@+id/edit_textSUS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="#FFF"
             android:focusedByDefault="false"
             android:hint="Editeaza textul (info/parte sus)" />
 
@@ -60,34 +60,36 @@
             android:orientation="horizontal">
 
             <Button
+                android:background="@drawable/mybutton"
                 android:id="@+id/settings_getTextSus"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="Afiseaza"
                 android:textStyle="bold" />
 
             <Button
+                android:background="@drawable/mybutton"
                 android:id="@+id/settings_setTextSus"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="Salveaza"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <EditText
+
+
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="#FFF"
+            android:textColorHint="#FFF"
             android:id="@+id/edit_textJOS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="#FFF"
             android:focusedByDefault="false"
             android:hint="Editeaza textul (info/parte jos)" />
 
@@ -98,106 +100,99 @@
             android:orientation="horizontal">
 
             <Button
+                android:background="@drawable/mybutton"
                 android:id="@+id/settings_getTextJOS"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="Afiseaza"
                 android:textStyle="bold" />
 
             <Button
+                android:background="@drawable/mybutton"
                 android:id="@+id/settings_setTextJOS"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="Salveaza"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
-
+            android:background="#37FFFFFF"
+            android:text="Schimba rata de refresh(minim metri pentru refresh):"
+            android:textColor="#FFF"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:background="#FFF"
-            android:text="Schimba rata de refresh(minim metri penru refresh):"
-            android:textColor="#000000"
-            android:textStyle="bold" />
+            android:textColorHint="#FFF"
 
+            android:textStyle="bold" />
         <LinearLayout
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:orientation="horizontal">
 
             <EditText
 
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:hint="minTime"
+                android:inputType="phone"
+                android:textColor="#FFF"
                 android:id="@+id/edit_ms"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_weight="1"
-                android:background="#FFF"
                 android:focusedByDefault="false"
-                android:hint="minTime"
-                android:inputType="phone"
-                android:padding="10dp" />
+                android:textColorHint="#FFF" />
 
             <Button
-                android:id="@+id/button_ms"
 
+                android:id="@+id/button_ms"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="SAVE"
                 android:textStyle="bold" />
         </LinearLayout>
-
         <TextView
-
+            android:background="#37FFFFFF"
+            android:text="Schimba rata de refresh(minim secunde pentru refresh):"
+            android:textColor="#FFF"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:background="#FFF"
-            android:text="Schimba rata de refresh(minim secunde penru refresh):"
-            android:textColor="#000000"
+            android:textColorHint="#FFF"
             android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:orientation="horizontal">
 
             <EditText
+
                 android:id="@+id/edit_metri"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_weight="1"
-                android:background="#FFF"
                 android:focusedByDefault="false"
                 android:hint="minDistance"
                 android:inputType="phone"
-                android:padding="10dp" />
+                android:textColor="#FFF"
+                android:textColorHint="#FFF" />
 
             <Button
                 android:id="@+id/button_metri"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_weight="3"
-                android:background="#FFF"
                 android:hint="SAVE"
                 android:textStyle="bold" />
         </LinearLayout>

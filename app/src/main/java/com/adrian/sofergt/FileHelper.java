@@ -13,8 +13,6 @@ import java.io.OutputStreamWriter;
 
 class FileHelper {
 
-    private static int code = 10;
-
     void writeToFile(String data, Context context, boolean del) {
         try {
             if (del) {
@@ -25,7 +23,6 @@ class FileHelper {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_APPEND));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
-            code = 90;
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
@@ -41,7 +38,7 @@ class FileHelper {
             if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
+                String receiveString;
                 StringBuilder stringBuilder = new StringBuilder();
 
                 while ((receiveString = bufferedReader.readLine()) != null) {

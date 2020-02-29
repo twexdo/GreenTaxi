@@ -55,25 +55,22 @@ public class View_MapActivity extends AppCompatActivity
                 // googleMap2.clear();
                 for (DataSnapshot snap : dataSnapshot.getChildren()) {
                     try {
-                        String sts = String.valueOf(snap.child("status").getValue(Double.class));
-
-                        Double c = Double.parseDouble(sts);
 
                         String nrtel = String.valueOf(snap.child("nrtel").getValue(String.class));
                         String x = String.valueOf(snap.child("x").getValue(Double.class));
                         String y = String.valueOf(snap.child("y").getValue(Double.class));
                         String name = String.valueOf(snap.child("nume").getValue(String.class));
 
-                        Double a = Double.parseDouble(x);
-                        Double b = Double.parseDouble(y);
+                        double a = Double.parseDouble(x);
+                        double b = Double.parseDouble(y);
 
                         LatLng location2 = new LatLng(a, b);
 
 
-                        float color = 0;
+                        float color;
                         double aux = Double.parseDouble(String.valueOf(snap.child("status").getValue(Double.class)));
                         int stat = (int) aux;
-                        String statStr = "";
+                        String statStr;
                         switch (stat) {
                             default:
                                 color = BitmapDescriptorFactory.HUE_AZURE;
@@ -104,11 +101,12 @@ public class View_MapActivity extends AppCompatActivity
                         } else {
 
 
-                            lista.get(nrtel).setPosition(location2);
-                            lista.get(nrtel).setTitle(name + " (" + statStr + ")");
-                            lista.get(nrtel).setIcon(BitmapDescriptorFactory.defaultMarker(color));
-                            if (stat < 1) lista.get(nrtel).setVisible(false);
-                            else lista.get(nrtel).setVisible(true);
+                            Objects.requireNonNull(lista.get(nrtel)).setPosition(location2);
+                            Objects.requireNonNull(lista.get(nrtel)).setTitle(name + " (" + statStr + ")");
+                            Objects.requireNonNull(lista.get(nrtel)).setIcon(BitmapDescriptorFactory.defaultMarker(color));
+                            if (stat < 1)
+                                Objects.requireNonNull(lista.get(nrtel)).setVisible(false);
+                            else Objects.requireNonNull(lista.get(nrtel)).setVisible(true);
 //                                        if (stat != 0) {
 //                                            Toast.makeText(getActivity().getApplicationContext(), name, Toast.LENGTH_SHORT).show();
 //                                           // Toast.makeText(getActivity().getApplicationContext(), nrtel + "\n" + color + "\n" + location2.toString() + "\n" + "false", Toast.LENGTH_LONG).show();
@@ -163,7 +161,7 @@ public class View_MapActivity extends AppCompatActivity
     @SuppressLint("MissingPermission")
     private LatLng getGPS() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        List<String> providers = lm.getProviders(true);
+        List<String> providers = Objects.requireNonNull(lm).getProviders(true);
 
         /* Loop over the array backwards, and if you get an accurate location, then break                 out the loop*/
         Location l = null;
@@ -176,5 +174,9 @@ public class View_MapActivity extends AppCompatActivity
         return new LatLng(Objects.requireNonNull(l).getLatitude(), l.getLongitude());
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 }

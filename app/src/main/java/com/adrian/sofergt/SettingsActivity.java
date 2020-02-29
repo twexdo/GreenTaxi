@@ -45,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     Uri imguri;
     boolean imgUploaded = false;
-
+    String myPhoneNumber;
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference firebaseRef, reference;
@@ -78,13 +78,22 @@ public class SettingsActivity extends AppCompatActivity {
         metriText = findViewById(R.id.edit_metri);
         metriSave = findViewById(R.id.button_metri);
 
+        Bundle extras = getIntent().getExtras();
+
+
+        if (extras != null) {
+            myPhoneNumber = extras.getString("myPhoneNumber");
+            setTitle("Comanda Acceptata");
+
+        }
+
 
         reference = db.getReference();
-        reference.child("soferi").child(MainActivity.getnrtel()).child("settings").addValueEventListener(new ValueEventListener() {
+        reference.child("soferi").child(myPhoneNumber).child("settings").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 try {
-                    msText.setText(String.valueOf(snapshot.child("ms").getValue(Integer.class) / 1000));
+                    msText.setText(String.valueOf(snapshot.child("ms").getValue(int.class) / 1000));
                     metriText.setText(String.valueOf(snapshot.child("metri").getValue(Integer.class)));
 
                 } catch (Exception e) {
@@ -92,8 +101,8 @@ public class SettingsActivity extends AppCompatActivity {
                     msText.setText("1");
                     metriText.setText("1");
                     FirebaseCrashlytics.getInstance().log(e.toString());
-                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("ms").setValue(1);
-                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("metri").setValue(1);
+                    reference.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(1);
+                    reference.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(1);
                 }
             }
 
@@ -109,7 +118,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     ms = Integer.parseInt(msText.getText().toString()) * 1000;
-                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("ms").setValue(ms);
+                    reference.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(ms);
 
                     SendLocation.ms = ms;
 
@@ -123,7 +132,7 @@ public class SettingsActivity extends AppCompatActivity {
                     Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
                     stopService(serviceIntent);
                     serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
-                    serviceIntent.putExtra("nrtel", MainActivity.getnrtel());
+                    serviceIntent.putExtra("nrtel", myPhoneNumber);
                     //startService(serviceIntent);
                     ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
                 } catch (Exception e) {
@@ -139,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 try {
                     metri = Integer.parseInt(metriText.getText().toString());
-                    reference.child("soferi").child(MainActivity.getnrtel()).child("settings").child("metri").setValue(metri);
+                    reference.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(metri);
                     SendLocation.metri = metri;
 
 
@@ -152,7 +161,7 @@ public class SettingsActivity extends AppCompatActivity {
                     Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
                     stopService(serviceIntent);
                     serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
-                    serviceIntent.putExtra("nrtel", MainActivity.getnrtel());
+                    serviceIntent.putExtra("nrtel", myPhoneNumber);
                     //startService(serviceIntent);
                     ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
                 } catch (Exception e) {
@@ -184,7 +193,7 @@ public class SettingsActivity extends AppCompatActivity {
         save_textSUS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (MainActivity.getnrtel().equals("0747089167"))
+                if (myPhoneNumber.equals("0747089167"))
                     if (edit_sus.getText().toString().length() > 5) {
                         firebaseRef = db.getReference("info");
                         firebaseRef.child("maintext").setValue(edit_sus.getText().toString());
@@ -217,7 +226,7 @@ public class SettingsActivity extends AppCompatActivity {
         save_textJOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (MainActivity.getnrtel().equals("0747089167"))
+                if (myPhoneNumber.equals("0747089167"))
                     if (edit_jos.getText().toString().length() > 5) {
                         firebaseRef = db.getReference("info");
                         firebaseRef.child("secondtext").setValue(edit_jos.getText().toString());
@@ -289,7 +298,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void FileUploader() {
         try {
-            final StorageReference seReference = storageReference.child(MainActivity.getnrtel() + "." + getExtension());
+            final StorageReference seReference = storageReference.child(myPhoneNumber + "." + getExtension());
 
 
             UploadTask uploadTask = seReference.putFile(imguri);
@@ -310,7 +319,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
                         String downloadURL = Objects.requireNonNull(downloadUri).toString();
-                        FirebaseDatabase.getInstance().getReference("soferi").child(MainActivity.getnrtel()).child("url").setValue(downloadURL);
+                        FirebaseDatabase.getInstance().getReference("soferi").child(myPhoneNumber).child("url").setValue(downloadURL);
                         Toast.makeText(SettingsActivity.this, "Imagine salvata cu succes", Toast.LENGTH_SHORT).show();
                     }
 
@@ -323,5 +332,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 
 }
