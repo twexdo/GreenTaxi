@@ -1,6 +1,7 @@
 package com.adrian.sofergt;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -27,8 +28,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -36,15 +41,21 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 
 public class SendLocation extends Service {
     public static final String CHANNEL_ID = "GreenTaxiForegroundService";
     public static String myPhoneNumber;
     public static LatLng LOCATION;
+    DatabaseReference mdb;
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference myRef;
+    PendingIntent pendingIntent;
     LocationManager locationManager;
     LocationListener locationListener;
+    Notification notification;
+    int notificationId;
+
 
     Date currentTime;
     NotificationCompat.Builder b;
@@ -88,6 +99,46 @@ public class SendLocation extends Service {
 
         }
     }
+
+    String receiverid, id, msg;
+
+
+    @Override
+    public void onDestroy() {
+        wakeLock.release();
+        locationManager.removeUpdates(locationListener);
+        unregisterReceiver(mReceiver);
+        if (context.getClass().isInstance(SendLocation.class)) {
+            ((SendLocation) context).stopForeground(true);
+        }
+
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        Log.e("SEND_LOCATION", "I BIDER");
+        return null;
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            Objects.requireNonNull(manager).createNotificationChannel(serviceChannel);
+        }
+    }
+
+    double x, y;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -192,6 +243,13 @@ public class SendLocation extends Service {
 
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, metri, locationListener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ms, metri, locationListener);
+            retrivemsg();
+
+
+
+
+
+
 
         } catch (Exception e) {
             Log.e("DEBUGFUCK", e.toString());
@@ -203,40 +261,120 @@ public class SendLocation extends Service {
         return START_STICKY;
     }
 
+    public void retrivemsg() {
+        Toast.makeText(context, "RETRIVE MSG ONz", Toast.LENGTH_SHORT).show();
+        mdb = FirebaseDatabase.getInstance().getReference("mesaj");
 
-    @Override
-    public void onDestroy() {
-        wakeLock.release();
-        locationManager.removeUpdates(locationListener);
-        unregisterReceiver(mReceiver);
-        if (context.getClass().isInstance(SendLocation.class)) {
-            ((SendLocation) context).stopForeground(true);
-        }
 
-    }
+        mdb.addChildEventListener(new ChildEventListener() {
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.e("SEND_LOCATION", "I BIDER");
-        Log.e("SEND_LOCATION", "I BIDER");
-        Log.e("SEND_LOCATION", "I BIDER");
-        Log.e("SEND_LOCATION", "I BIDER");
-        Log.e("SEND_LOCATION", "I BIDER");
-        Log.e("SEND_LOCATION", "I BIDER");
-        return null;
-    }
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
+                try {
+                    Toast.makeText(context, "onChildAdded", Toast.LENGTH_SHORT).show();
+                    receiverid = dataSnapshot.child("to").getValue(String.class);
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            Objects.requireNonNull(manager).createNotificationChannel(serviceChannel);
-        }
+
+                    if (receiverid.equals(myPhoneNumber)) {
+                        Toast.makeText(SendLocation.this, "Mesaj pentru mine!", Toast.LENGTH_SHORT).show();
+                        id = dataSnapshot.child("from").getValue(String.class);
+                        int type = dataSnapshot.child("type").getValue(Integer.class);
+                        if (type == 0) {
+                            x = dataSnapshot.child("x").getValue(Double.class);
+                            y = dataSnapshot.child("y").getValue(Double.class);
+                            msg = dataSnapshot.child("content").getValue(String.class);
+
+
+                            Intent notificationIntent = new Intent(SendLocation.this, Action.class);
+
+                            notificationIntent.putExtra("from", id);
+                            notificationIntent.putExtra("myId", receiverid);
+
+                            notificationIntent.putExtra("content", msg);
+                            notificationIntent.putExtra("x", x);
+                            notificationIntent.putExtra("y", y);
+                            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+
+                                    Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            notificationIntent.putExtra("smsid", dataSnapshot.getKey());
+
+
+                            pendingIntent = PendingIntent.getActivity(SendLocation.this,
+                                    0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        } else if (type == 2) {
+                            if (dataSnapshot.child("clientConfirm").getValue(Boolean.class)) {
+                                msg = "Clientul  a acceptat comanda.";
+                                Intent notificationIntent = new Intent(SendLocation.this, Acceptat.class);
+                                notificationIntent.putExtra("smsid", dataSnapshot.getKey());
+                                notificationIntent.putExtra("myId", receiverid);
+                                notificationIntent.putExtra("hisId", id);
+                                pendingIntent = PendingIntent.getActivity(SendLocation.this,
+                                        0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                            } else {
+                                msg = "Clientul  a refuzat comanda.";
+                                Intent notificationIntent = new Intent(SendLocation.this, MainActivity.class);
+                                notificationIntent.putExtra("smsid", dataSnapshot.getKey());
+                                pendingIntent = PendingIntent.getActivity(SendLocation.this,
+                                        0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                            }
+
+                        }
+
+
+                        notificationId = new Random().nextInt();
+
+
+                        createNotificationChannel();
+                        b = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                                .setContentTitle(id)
+                                .setContentText(msg)
+                                .setContentIntent(pendingIntent)
+                                .setSmallIcon(R.drawable.sms);
+                        notification = b.build();
+
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                            notificationManager.notify(notificationId, b.build());
+
+                        } else {
+                            startForeground(notificationId, notification);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(SendLocation.this, "EROARE!!", Toast.LENGTH_SHORT).show();
+                    Log.e("onChildAdded", e.toString());
+                    // myNR = "0";
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
 }
