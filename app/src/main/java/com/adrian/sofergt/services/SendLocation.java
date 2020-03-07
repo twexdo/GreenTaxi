@@ -10,18 +10,13 @@
 //import android.content.Context;
 //import android.content.Intent;
 //import android.content.IntentFilter;
-//import android.content.SharedPreferences;
-//import android.location.Location;
 //import android.location.LocationListener;
 //import android.location.LocationManager;
 //import android.net.ConnectivityManager;
-//import android.net.NetworkInfo;
 //import android.os.Build;
-//import android.os.Bundle;
 //import android.os.IBinder;
 //import android.os.PowerManager;
 //import android.os.PowerManager.WakeLock;
-//import android.provider.Settings;
 //import android.util.Log;
 //import android.widget.Toast;
 //
@@ -43,7 +38,6 @@
 //import com.google.firebase.database.FirebaseDatabase;
 //
 //import java.text.SimpleDateFormat;
-//import java.util.Calendar;
 //import java.util.Date;
 //import java.util.Objects;
 //import java.util.Random;
@@ -131,17 +125,7 @@
 //        return null;
 //    }
 //
-//    private void createNotificationChannel() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel serviceChannel = new NotificationChannel(
-//                    CHANNEL_ID,
-//                    "Foreground Service Channel",
-//                    NotificationManager.IMPORTANCE_DEFAULT
-//            );
-//            NotificationManager manager = getSystemService(NotificationManager.class);
-//            Objects.requireNonNull(manager).createNotificationChannel(serviceChannel);
-//        }
-//    }
+//
 //
 //    double x, y;
 //
@@ -175,80 +159,7 @@
 //
 //        try {
 //            wakeLock.acquire(60 * 60 * 1000L /*1 hour*/);
-//
-//            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-//
-//            locationListener = new LocationListener() {
-//
-//
-//                @Override
-//                public void onLocationChanged(Location location) {
-//                    if (location.getLatitude() > 49 || location.getLatitude() < 42 ||
-//                            location.getLongitude() > 27 || location.getLongitude() < 21) {
-//                        myRef = db.getReference("erorii");
-//                        myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
-//                        myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
-//                    }
-//                    myRef = db.getReference("soferi");
-//
-//                    myRef.child(myPhoneNumber).child("x").setValue(location.getLatitude());
-//                    myRef.child(myPhoneNumber).child("y").setValue(location.getLongitude());
-//                    LOCATION = new LatLng(location.getLatitude(), location.getLongitude());
-//                    currentTime = Calendar.getInstance().getTime();
-//
-//                    myRef.child(myPhoneNumber).child("lastSignal").setValue(sdf.format(currentTime));
-//                    Intent intent1 = new Intent();
-//                    intent1.setAction("com.adrian.sofergt");
-//                    intent1.putExtra("lastTimeLocationHasBeenSent", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
-//                    sendBroadcast(intent1);
-//
-//
-//                    final ConnectivityManager connMgr = (ConnectivityManager) getApplicationContext()
-//                            .getSystemService(Context.CONNECTIVITY_SERVICE);
-//
-//                    final NetworkInfo mobile = Objects.requireNonNull(connMgr)
-//                            .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-//
-//                    final NetworkInfo wifi = connMgr
-//                            .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//
-//                    if (Objects.requireNonNull(mobile).isConnected() || Objects.requireNonNull(wifi).isConnected()) {
-//                        SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
-//                        SharedPreferences.Editor editor = sharedPreferences.edit();
-//                        editor.putString("lastC", "Ultima locatie s-a trimisa : (" + sdf.format(currentTime) + ")");
-//                        editor.apply();
-//                    }
-//                }
-//
-//
-//                @Override
-//                public void onStatusChanged(String s, int i, Bundle bundle) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderEnabled(String s) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderDisabled(String s) {
-//                    try {
-//                        Toast.makeText(SendLocation.this, "ACTIVEAZA LOCATIA!!", Toast.LENGTH_LONG).show();
-//                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        startActivity(intent);
-//                    } catch (Exception e) {
-//
-//                        Toast.makeText(SendLocation.this, "Activati locatia!!!!!!!!!!!", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//            };
-//
-//
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, metri, locationListener);
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ms, metri, locationListener);
-//            retrivemsg();
+//  retrivemsg();
 //
 //
 //
@@ -383,4 +294,4 @@
 //    }
 //
 //}
-//THIS CLASS IS NO LONGER USED
+//NO LONGER USED CLASS

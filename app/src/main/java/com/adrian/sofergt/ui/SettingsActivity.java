@@ -37,7 +37,7 @@ import java.util.Objects;
 public class SettingsActivity extends AppCompatActivity {
     Button show_textSUS, save_textSUS, show_textJOS, save_textJOS, save_image, metriSave, msSave;
 
-    EditText edit_sus, edit_jos, msText, metriText;
+    EditText edit_sus, edit_jos;
 
     ImageView imageView;
 
@@ -48,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference firebaseRef, reference;
     StorageReference storageReference;
-    int metri, ms;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +69,6 @@ public class SettingsActivity extends AppCompatActivity {
         imageView = findViewById(R.id.edit_image);
         save_image = findViewById(R.id.save_image);
 
-        msText = findViewById(R.id.edit_ms);
-        msSave = findViewById(R.id.button_ms);
-
-
-        metriText = findViewById(R.id.edit_metri);
-        metriSave = findViewById(R.id.button_metri);
 
         Bundle extras = getIntent().getExtras();
 

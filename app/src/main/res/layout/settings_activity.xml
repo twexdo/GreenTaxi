@@ -36,7 +36,7 @@
                 android:id="@+id/save_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/mybutton"
+                android:background="#4CAF50"
                 android:layout_weight="3"
                 android:hint="SAVE"
                 android:textStyle="bold" />
@@ -60,7 +60,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:background="@drawable/mybutton"
+                android:background="#4CAF50"
                 android:id="@+id/settings_getTextSus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:background="@drawable/mybutton"
+                android:background="#4CAF50"
                 android:id="@+id/settings_setTextSus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:background="@drawable/mybutton"
+                android:background="#4CAF50"
                 android:id="@+id/settings_getTextJOS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,90 +110,13 @@
                 android:textStyle="bold" />
 
             <Button
-                android:background="@drawable/mybutton"
+                android:background="#4CAF50"
                 android:id="@+id/settings_setTextJOS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="3"
                 android:hint="Salveaza"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:background="#37FFFFFF"
-            android:text="Schimba rata de refresh(minim metri pentru refresh):"
-            android:textColor="#FFF"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColorHint="#FFF"
-
-            android:textStyle="bold" />
-        <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:orientation="horizontal">
-
-            <EditText
-
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:hint="minTime"
-                android:inputType="phone"
-                android:textColor="#FFF"
-                android:id="@+id/edit_ms"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:focusedByDefault="false"
-                android:textColorHint="#FFF" />
-
-            <Button
-
-                android:id="@+id/button_ms"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_weight="3"
-                android:hint="SAVE"
-                android:textStyle="bold" />
-        </LinearLayout>
-        <TextView
-            android:background="#37FFFFFF"
-            android:text="Schimba rata de refresh(minim secunde pentru refresh):"
-            android:textColor="#FFF"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColorHint="#FFF"
-            android:textStyle="bold" />
-
-        <LinearLayout
-
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:orientation="horizontal">
-
-            <EditText
-
-                android:id="@+id/edit_metri"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:focusedByDefault="false"
-                android:hint="minDistance"
-                android:inputType="phone"
-                android:textColor="#FFF"
-                android:textColorHint="#FFF" />
-
-            <Button
-                android:id="@+id/button_metri"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_weight="3"
-                android:hint="SAVE"
                 android:textStyle="bold" />
         </LinearLayout>
 
