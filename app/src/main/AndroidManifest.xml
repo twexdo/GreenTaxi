@@ -17,8 +17,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Acceptat"></activity>
-        <activity android:name=".Action" />
+        <service
+            android:name=".services.LocationBackgroundService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location" />
+
+        <activity android:name=".communication.Acceptat" />
+        <activity android:name=".communication.Action" />
 
         <receiver android:name=".InternetReciver">
             <intent-filter>
@@ -27,7 +33,7 @@
         </receiver>
 
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
 
         <meta-data
@@ -37,14 +43,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_key" />
 
-        <service
-            android:name=".SendLocation"
-            android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="location" />
 
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".View_MapActivity" />
+        <activity android:name=".ui.RegisterActivity" />
+        <activity android:name=".ui.View_MapActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

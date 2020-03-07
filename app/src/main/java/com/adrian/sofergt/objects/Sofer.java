@@ -1,4 +1,4 @@
-package com.adrian.sofergt;
+package com.adrian.sofergt.objects;
 
 public class Sofer {
     public String nume;

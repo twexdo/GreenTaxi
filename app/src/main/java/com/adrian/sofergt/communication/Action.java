@@ -1,4 +1,4 @@
-package com.adrian.sofergt;
+package com.adrian.sofergt.communication;
 
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adrian.sofergt.R;
+import com.adrian.sofergt.objects.sms;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 

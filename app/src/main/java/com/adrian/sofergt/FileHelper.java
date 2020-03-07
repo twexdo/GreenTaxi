@@ -11,9 +11,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-class FileHelper {
+public class FileHelper {
 
-    void writeToFile(String data, Context context, boolean del) {
+    public void writeToFile(String data, Context context, boolean del) {
         try {
             if (del) {
                 File f = new File(context.getFilesDir().getAbsolutePath() + "/config.txt");
@@ -28,7 +28,7 @@ class FileHelper {
         }
     }
 
-    String readFromFile(Context context) {
+    public String readFromFile(Context context) {
 
         String ret = "";
 

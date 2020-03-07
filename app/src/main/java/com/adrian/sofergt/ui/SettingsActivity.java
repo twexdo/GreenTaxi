@@ -1,4 +1,4 @@
-package com.adrian.sofergt;
+package com.adrian.sofergt.ui;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
@@ -18,12 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
+import com.adrian.sofergt.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -89,88 +87,6 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         reference = db.getReference();
-        reference.child("soferi").child(myPhoneNumber).child("settings").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                try {
-                    msText.setText(String.valueOf(snapshot.child("ms").getValue(int.class) / 1000));
-                    metriText.setText(String.valueOf(snapshot.child("metri").getValue(Integer.class)));
-
-                } catch (Exception e) {
-                    Log.e("onDataChange", e.toString());
-                    msText.setText("1");
-                    metriText.setText("1");
-                    FirebaseCrashlytics.getInstance().log(e.toString());
-                    reference.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(1);
-                    reference.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(1);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
-        msSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    ms = Integer.parseInt(msText.getText().toString()) * 1000;
-                    reference.child("soferi").child(myPhoneNumber).child("settings").child("ms").setValue(ms);
-
-                    SendLocation.ms = ms;
-
-
-                    Toast.makeText(SettingsActivity.this, "Saved", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e("TAG-msSave", e.toString());
-                    Toast.makeText(SettingsActivity.this, "Introduceti o valoare valida!", Toast.LENGTH_SHORT).show();
-                }
-                try {
-                    Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
-                    stopService(serviceIntent);
-                    serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
-                    serviceIntent.putExtra("nrtel", myPhoneNumber);
-                    //startService(serviceIntent);
-                    ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
-                } catch (Exception e) {
-                    Log.e("TAG-msSave", e.toString());
-                    Toast.makeText(SettingsActivity.this, "Probleme la Serviciu", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        metriSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    metri = Integer.parseInt(metriText.getText().toString());
-                    reference.child("soferi").child(myPhoneNumber).child("settings").child("metri").setValue(metri);
-                    SendLocation.metri = metri;
-
-
-                    Toast.makeText(SettingsActivity.this, "Saved", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e("TAG-metriSave", e.toString());
-                    Toast.makeText(SettingsActivity.this, "Introduceti o valoare valida!", Toast.LENGTH_SHORT).show();
-                }
-                try {
-                    Intent serviceIntent = new Intent(getApplicationContext(), SendLocation.class);
-                    stopService(serviceIntent);
-                    serviceIntent.putExtra("inputExtra", "Locatia se transmite in background.");
-                    serviceIntent.putExtra("nrtel", myPhoneNumber);
-                    //startService(serviceIntent);
-                    ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
-                } catch (Exception e) {
-                    Log.e("TAG-metriSave", e.toString());
-                    Toast.makeText(SettingsActivity.this, "Probleme la Serviciu", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
 
 
         show_textSUS.setOnClickListener(new View.OnClickListener() {

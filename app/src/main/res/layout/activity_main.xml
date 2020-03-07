@@ -82,17 +82,6 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/b_force"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="#CC3300"
-            android:drawableLeft="@drawable/ic_warning"
-            android:padding="10dp"
-            android:text="Force send Location" />
-
-        <Button
             android:id="@+id/b_setari"
             android:layout_width="100dp"
             android:layout_height="wrap_content"

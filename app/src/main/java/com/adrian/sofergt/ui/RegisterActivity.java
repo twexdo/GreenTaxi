@@ -1,4 +1,4 @@
-package com.adrian.sofergt;
+package com.adrian.sofergt.ui;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,6 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adrian.sofergt.FileHelper;
+import com.adrian.sofergt.R;
+import com.adrian.sofergt.objects.Sofer;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
