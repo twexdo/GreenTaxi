@@ -1,5 +1,7 @@
 package com.adrian.sofergt.communication;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adrian.sofergt.FileHelper;
 import com.adrian.sofergt.R;
 import com.adrian.sofergt.objects.sms;
 import com.google.firebase.database.DatabaseReference;
@@ -17,7 +20,7 @@ public class Action extends AppCompatActivity {
     static String myId;
     Button b1, b2, b3, b4, b5, bVezimapa, bAnuleaza;
     TextView contentView;
-    String id, smsid;
+    String id, smsid, myName;
     double x, y;
     DatabaseReference databaseReference;
 
@@ -39,6 +42,15 @@ public class Action extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
 
 
+        FileHelper f = new FileHelper();
+
+        myName = f.readFromFile(this);
+        String[] strings = myName.split(" ");
+        try {
+            myName = strings[4];
+        } catch (Exception e) {
+            Toast.makeText(this, "Register first", Toast.LENGTH_SHORT).show();
+        }
         if (extras != null) {
             smsid = extras.getString("smsid");
             id = extras.getString("from");
@@ -47,7 +59,7 @@ public class Action extends AppCompatActivity {
 
             setTitle(id);
 
-            contentView.setText(content + " \n sms id :" + smsid);
+            contentView.setText(content);
 
 
             x = extras.getDouble("x", 0.0);
@@ -88,7 +100,9 @@ public class Action extends AppCompatActivity {
         bVezimapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //vezi mapa
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("http://maps.google.com/maps?daddr=" + x + "," + y));
+                startActivity(intent);
             }
         });
         bAnuleaza.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +110,7 @@ public class Action extends AppCompatActivity {
             public void onClick(View view) {
 
                 databaseReference.child("mesaj").child(smsid).setValue(null);
-                databaseReference.child("mesaj").push().setValue(new sms(id, myId, 0));
+                databaseReference.child("mesaj").push().setValue(new sms(id, myId, 0, myName));
                 //refuza
             }
         });
@@ -107,7 +121,7 @@ public class Action extends AppCompatActivity {
     public void accept(double x, double y, int time) {
 
 
-        databaseReference.child("mesaj").push().setValue(new sms(id, myId, time));
+        databaseReference.child("mesaj").push().setValue(new sms(id, myId, time, myName));
         databaseReference.child("mesaj").child(smsid).setValue(null);
 //        Intent i=new Intent(getApplicationContext(),Acceptat.class);
 //        i.putExtra("x",x);

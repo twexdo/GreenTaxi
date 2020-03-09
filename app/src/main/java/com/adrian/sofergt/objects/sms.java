@@ -10,7 +10,7 @@ public class sms {
     public Integer time;
     public Integer type;
     public Boolean clientConfirm;
-
+    public String nume = null;
 
     public sms(String to, String from, String content, double x, double y) {
         this.to = to;
@@ -23,8 +23,9 @@ public class sms {
         arrived = null;
     }
 
-    public sms(String to, String from, int time) {
+    public sms(String to, String from, int time, String nume) {
         type = 1;
+        this.nume = nume;
         this.to = to;
         this.from = from;
         this.time = time;

@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:text="Cerere de la 0744857875"
-        android:textColor="#000"
+        android:textColor="#FFF"
         android:textStyle="bold" />
 
     <Button

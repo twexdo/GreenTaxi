@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             TELEFON = dates[2];
             inregistrat = true;
             setTitle(dates[1] + "\n" + dates[2]);
-            // Toast.makeText(this, "Bine ai venit " + dates[1] + "! ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Bine ai venit " + dates[1] + "! ", Toast.LENGTH_SHORT).show();
         }
         if (!inregistrat) {
             Intent myIntent = new Intent(MainActivity.this, RegisterActivity.class);
