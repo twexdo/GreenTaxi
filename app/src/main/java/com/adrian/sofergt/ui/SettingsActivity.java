@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adrian.sofergt.CounterClass;
 import com.adrian.sofergt.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+        CounterClass.Add();
         setTitle("Optiuni");
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         storageReference = firebaseStorage.getReference("Images");
@@ -240,6 +242,12 @@ public class SettingsActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CounterClass.Remove();
     }
 
     @Override

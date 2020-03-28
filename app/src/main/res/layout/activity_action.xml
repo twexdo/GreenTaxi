@@ -10,6 +10,7 @@
     tools:context=".communication.Action">
 
     <TextView
+
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,22 +51,51 @@
         android:text="Ajung in 15 minute"
         android:textColor="#000" />
 
-    <Button
-        android:id="@+id/b4"
-        android:layout_width="match_parent"
+    <LinearLayout
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Ajung in 20 minute"
-        android:textColor="#000" />
-
-    <Button
-        android:id="@+id/b5"
+        android:layout_margin="5dp"
+        android:background="#FFF"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Ajung in 25 minute"
-        android:textColor="#000" />
+        android:paddingRight="8dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AJUNG IN  "
+            android:textColor="#000000" />
+
+        <EditText
+            android:id="@+id/action_minute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#2C2C2C"
+            android:minWidth="40dp"
+            android:padding="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textAlignment="center"
+            android:textColor="#FFF"
+            android:textColorHint="#FFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:text="MINUTE"
+            android:textColor="#000" />
+
+        <Button
+            android:id="@+id/action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:text="Trimite" />
+    </LinearLayout>
     <Button
         android:id="@+id/b_anulare"
         android:layout_width="match_parent"

@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adrian.sofergt.CounterClass;
 import com.adrian.sofergt.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -40,8 +41,10 @@ public class View_MapActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view__map);
+        CounterClass.Add();
         lista = new HashMap<>();
 
         setTitle("Live Map");
@@ -52,8 +55,8 @@ public class View_MapActivity extends AppCompatActivity
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {     // Get Post object and use the values to update the UI
-                // googleMap2.clear();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
                 for (DataSnapshot snap : dataSnapshot.getChildren()) {
                     try {
 
@@ -108,18 +111,7 @@ public class View_MapActivity extends AppCompatActivity
                             if (stat < 1)
                                 Objects.requireNonNull(lista.get(nrtel)).setVisible(false);
                             else Objects.requireNonNull(lista.get(nrtel)).setVisible(true);
-//                                        if (stat != 0) {
-//                                            Toast.makeText(getActivity().getApplicationContext(), name, Toast.LENGTH_SHORT).show();
-//                                           // Toast.makeText(getActivity().getApplicationContext(), nrtel + "\n" + color + "\n" + location2.toString() + "\n" + "false", Toast.LENGTH_LONG).show();
-//                                            animateMarker(lista.get(nrtel), name,stat, location2, false);
-//                                        }else {
-//
-//                                          //  Toast.makeText(getActivity().getApplicationContext(), nrtel + "\n" + color + "\n" + location2.toString() + "\n" + "true", Toast.LENGTH_LONG).show();
-//                                            animateMarker(lista.get(nrtel),  name,stat, location2, true);
-//
-//                                        }
                         }
-
 
                     } catch (NumberFormatException ignored) {
                     }
@@ -155,7 +147,7 @@ public class View_MapActivity extends AppCompatActivity
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         } catch (Exception e) {
             Log.e("MAPERROR", e.toString());
-            Toast.makeText(this, "Activeaza-te pe mapa cu ocupat sau liber mai intai.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "MAPERROR" + e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -164,7 +156,6 @@ public class View_MapActivity extends AppCompatActivity
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = Objects.requireNonNull(lm).getProviders(true);
 
-        /* Loop over the array backwards, and if you get an accurate location, then break                 out the loop*/
         Location l = null;
 
         for (int i = providers.size() - 1; i >= 0; i--) {
@@ -173,6 +164,12 @@ public class View_MapActivity extends AppCompatActivity
         }
 
         return new LatLng(Objects.requireNonNull(l).getLatitude(), l.getLongitude());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CounterClass.Remove();
     }
 
     @Override

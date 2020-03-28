@@ -61,6 +61,7 @@
 
 
     <Button
+        android:visibility="visible"
         android:id="@+id/b_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,6 +70,34 @@
         android:text="Inregistrare"
 
         />
+
+    <TextView
+        android:id="@+id/auth_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Introduceti codul trimis prin sms"
+        android:textAlignment="center"
+        android:textColor="#FFF"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/auth_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="#27673AB7"
+        android:hint="123456"
+        android:inputType="phone"
+        android:textAlignment="center"
+        android:textColor="#FFF"
+        android:textStyle="italic"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/auth_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
 
 </LinearLayout>

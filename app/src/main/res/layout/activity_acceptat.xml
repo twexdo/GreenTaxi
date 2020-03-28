@@ -5,9 +5,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#000"
+    android:padding="8dp"
     tools:context=".communication.Acceptat">
 
     <Button
+        android:id="@+id/acceptat_vezi_pe_mapa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -15,6 +17,7 @@
         android:textColor="#000" />
 
     <Button
+        android:id="@+id/acceptat_motiv1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -22,6 +25,7 @@
         android:textColor="#000" />
 
     <Button
+        android:id="@+id/acceptat_motiv2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -29,18 +33,13 @@
         android:textColor="#000" />
 
     <Button
+        android:id="@+id/acceptat_motiv3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="intarzaiere (motiv 3)"
         android:textColor="#000" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Anuleaza"
-        android:textColor="#000" />
 
     <Button
         android:id="@+id/arrived"
@@ -50,6 +49,22 @@
         android:background="#4CAF50"
         android:text="Am ajuns"
         android:textColor="#000" />
+    <Button
+        android:id="@+id/acceptat_comanda_incheiata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#1E88E5"
+        android:text="Am terminat"
+        android:textColor="#000" />
 
+    <Button
+        android:id="@+id/acceptat_anuleaza"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#E53935"
+        android:text="Anuleaza"
+        android:textColor="#000" />
 
 </LinearLayout>

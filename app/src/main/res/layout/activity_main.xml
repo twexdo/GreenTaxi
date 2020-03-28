@@ -74,6 +74,18 @@
 
         />
 
+    <Button
+        android:id="@+id/b_comenzi"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:text="COMENZI ACTIVE"
+        android:textColor="@color/white"
+
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

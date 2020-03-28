@@ -24,13 +24,9 @@ public class PermissionsListenerClass implements MultiplePermissionsListener {
     @Override
     public void onPermissionsChecked(MultiplePermissionsReport report) {
         if (!report.areAllPermissionsGranted()) {
-            //mainActivity.finish();
-            //android.os.Process.killProcess(android.os.Process.myPid());
         } else {
-            //configureaza butonul pentru a putea folosi mapa
 
-            //continua activitatea
-            mainActivity.continueActivity();
+            mainActivity.permisiuniGarantate();
         }
 
     }
