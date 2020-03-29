@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "814762393251",
+    "firebase_url": "https://greentaxi-d0de2.firebaseio.com",
+    "project_id": "greentaxi-d0de2",
+    "storage_bucket": "greentaxi-d0de2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:b2972fadd6546f68260916",
+        "android_client_info": {
+          "package_name": "com.adrian.sofergt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-lr9612al371sedqeu9p97tg008pvjsfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrian.sofergt",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "814762393251-19mgvl3i7rtk7pghc614gsj47vqf2mdp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.test.blabla"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814762393251:android:66531d351122a387260916",
+        "android_client_info": {
+          "package_name": "com.twexdo.client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814762393251-d0s3pbqt2mt7ls7okt87cssu8kbm281c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.twexdo.client",
+            "certificate_hash": "2471d773d76ed7356874658f9ba7816d160dc337"
+          }
+        },
+        {
+          "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTlRlGBq7cgrjThZN9M-isdjlgrbSuWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814762393251-6cj1c9skf3fnjpmhin4qg62qrshti9v8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "814762393251-19mgvl3i7rtk7pghc614gsj47vqf2mdp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.test.blabla"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

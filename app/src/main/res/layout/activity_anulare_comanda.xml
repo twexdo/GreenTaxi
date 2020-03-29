@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:padding="5dp"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="Esti sigur ca vrei sa anulezi aceasta comanda?"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"/>
+
+    <TextView
+        android:textSize="20sp"
+        android:textColor="#E53935"
+        android:id="@+id/anulare_nrtel"
+        android:text="Client Phone:0744857875"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        />
+
+    <Button
+        android:id="@+id/anulare_b_anulare"
+        android:layout_margin="5dp"
+        android:text="Anulare comanda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/anulare_b_renunta"
+        android:layout_margin="5dp"
+        android:text="Renunta la anulare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/anulare_b_blocheaza"
+        android:layout_margin="5dp"
+        android:text="Blocheaza client"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
